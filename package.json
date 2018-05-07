@@ -1,0 +1,31 @@
+{
+  "name": "parcel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html --public-url /",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Copyes/Parcel.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Copyes/Parcel/issues"
+  },
+  "homepage": "https://github.com/Copyes/Parcel#readme",
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "less": "^3.0.4",
+    "parcel-plugin-vue": "^1.5.0"
+  },
+  "dependencies": {
+    "vue": "^2.5.16",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  }
+}
