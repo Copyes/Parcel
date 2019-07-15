@@ -1,21 +1,26 @@
 <template>
   <div class="test">
-    sss
+    <Stack></Stack>
   </div>
 </template>
 
 <script>
+  import Stack from '../../components/touch-swiper/index.vue';
   export default {
-    name: 'test'
+    name: 'test',
+    components: {
+      Stack
+    }
   }
 </script>
 
 <style>
 #app {
+  margin-top: 60px;
+  color: #2c3e50;
+  text-align: center;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
