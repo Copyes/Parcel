@@ -1,5 +1,5 @@
 <template>
-  <div class="test">
+  <div class="stack-wrapper">
     <Stack></Stack>
   </div>
 </template>
@@ -15,12 +15,15 @@
 </script>
 
 <style>
-#app {
-  margin-top: 60px;
-  color: #2c3e50;
-  text-align: center;
 
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+.stack-wrapper{
+    position: relative;
+    z-index: 1000;
+    margin: 0 auto;
+    padding: 0;
+    width: 320px;
+    height: 320px;
+    list-style: none;
+    pointer-events: none;
+  }
 </style>

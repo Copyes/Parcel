@@ -81,12 +81,25 @@ export default {
   -webkit-perspective-origin: 50% 150%;
 }
 .stack-item {
+  position: absolute;
+  display: -webkit-flex;
+  display: flex;
   overflow: hidden;
-  width: 200px;
-  height: 200px;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   border-radius: 4px;
-  background: #fff;
   text-align: center;
+  opacity: 0;
+  pointer-events: auto;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .stack-item div {
     display: block;
