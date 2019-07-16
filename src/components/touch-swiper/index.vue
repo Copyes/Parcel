@@ -1,6 +1,14 @@
 <template>
   <ul class="stack">
-    <li class="stack-item" v-for="(item, index) in pages" :key="index" :style="[transform(index)]">
+    <li class="stack-item" v-for="(item, index) in pages" :key="index" :style="[transformIndex(index), transform(index)]"
+      @touchstart.stop.capture="touchStart"
+      @touchmove.stop.capture="touchMove"
+      @touchend.stop.capture="touchEnd"
+      @mousedown.stop.capture="touchStart"
+      @mouseup.stop.capture="touchEnd"
+      @mousemove.stop.capture="touchMove"
+      @webkit-transition-end="onTransitionEnd"
+      @transitionend="onTransitionEnd">
       <div :style="{'backgroundColor': item.color}"></div>
     </li>
   </ul>
@@ -35,25 +43,84 @@ export default {
         }
       ],
       firstCard: {
+        start: {},
+        end: {},
         currentPage: 0
       },
       tempData: {
-        zIndex: 10,
-        opacity: 1,
-        visible: 3
+        posWidth: '',
+        posHeight: '',
+        tracking: false, // 是否在滑动，防止多次操作，影响体验
+        animation: false, // 首图是否启用动画效果，默认为否
+        opacity: 1 // 记录首图透明度
       }
     }
   },
   methods: {
+    
+    touchStart(e) {
+      if(this.tempData.tracking) return;
+      if(e.type === 'touchstart') {
+        // 
+        if(e.targetTouches.length > 1){
+          this.tempData.tracking = false;
+          return;
+        } else {
+          this.firstCard.start.t = new Date().getTime();
+          this.firstCard.start.x = e.targetTouches[0].clientX;
+          this.firstCard.start.y = e.targetTouches[0].clientY;
+          this.firstCard.end.x = e.targetTouches[0].clientX;
+          this.firstCard.end.y = e.targetTouches[0].clientY;
+        }
+      } else {
+        this.firstCard.start.t = new Date().getTime();
+        this.firstCard.start.x = e.clientX;
+        this.firstCard.start.y = e.clientY;
+        this.firstCard.end.x = e.clientX;
+        this.firstCard.end.y = e.clientY;
+      }
+      this.tempData.tracking = true;
+      this.tempData.animation = false;
+    },
+    touchMove(e) {
+      // 记录滑动位置
+      if(this.tempData.tracking && !this.tempData.animation){
+        if(e.type === 'touchmove'){
+          this.firstCard.end.x = e.targetTouches[0].clientX;
+          this.firstCard.end.y = e.targetTouches[0].clientY;
+        } else {
+          this.firstCard.end.x = e.clientX;
+          this.firstCard.end.y = e.clientY;
+        }
+        this.tempData.posWidth = this.firstCard.end.x - this.firstCard.start.x;
+        this.tempData.posHeight = this.firstCard.end.y - this.firstCard.start.y;
+      }
+    },
+    touchEnd(e) {
+      this.tempData.tracking = false;
+      this.tempData.animation = true
+      if(Math.abs(this.tempData.posWidth) >= 100) {
+        const radio = Math.abs(this.tempData.posWidth / this.tempData.posHeight);
+        this.tempData.posWidth = this.tempData.posWidth > 0 ? this.tempData.posWidth + 200 : this.tempData.posWidth - 200;
+        this.tempData.posHeight = this.tempData.posHeight > 0 ? Math.abs(this.tempData.posWidth * radio) : -Math.abs(this.tempData.posWidth * radio);
+        this.tempData.opacity = 0;
+      } else {
+        this.tempData.posWidth = 0;
+        this.tempData.posHeight = 0;
+      }
+    },
+    onTransitionEnd() {
+      
+    },
     transform(index) {
-      if(index >= this.firstCard.currentPage) {
+      if(index > this.firstCard.currentPage) {
         let style = {};
-        let visible = this.tempData.visible;
+        let visible = 3;
         let preIndex = index - this.firstCard.currentPage;
         // 可见数量内的卡片样式
-        if(index <= this.firstCard.currentPage + this.tempData.visible - 1) {
+        if(index <= this.firstCard.currentPage + visible - 1) {
           style['opacity'] = 1;
-          style['transform'] = `translate3d(0,0,${-1 * preIndex * 60}px)`;
+          style['transform'] = `translate3D(0,0,${-1 * preIndex * 60}px)`;
           style['zIndex'] = visible - index + this.firstCard.currentPage;
           style['transitionTimingFunction'] = 'ease'
           style['transitionDuration'] = 300 + 'ms';
@@ -62,7 +129,20 @@ export default {
           style['transform'] = `translate3d(0,0,${-1 * visible * 60}px)`;
         }
         return style;
-      } 
+      }
+    },
+    transformIndex(index) {
+      if(index === this.firstCard.currentPage) {
+        let style = {};
+        style['transform'] = `translate3d(${this.tempData.posWidth}px,${this.tempData.posHeight}px,0)`;
+        style['opacity'] = this.tempData.opacity;
+        style['zIndex'] = 10;
+        if (this.tempData.animation) {
+          style['transitionTimingFunction'] = 'ease';
+          style['transitionDuration'] = 300 + 'ms';
+        }
+        return style;
+      }
     }
   }
 }
