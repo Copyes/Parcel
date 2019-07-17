@@ -50,9 +50,12 @@ export default {
       tempData: {
         posWidth: '',
         posHeight: '',
+        lastPosWidth: '', // 记录上次的位置，以便回弹
+        lastPosHeight: '',
         tracking: false, // 是否在滑动，防止多次操作，影响体验
         animation: false, // 首图是否启用动画效果，默认为否
-        opacity: 1 // 记录首图透明度
+        opacity: 1, // 记录首图透明度
+        swipe: false // onTransition判定条件
       }
     }
   },
@@ -100,21 +103,39 @@ export default {
       this.tempData.tracking = false;
       this.tempData.animation = true
       if(Math.abs(this.tempData.posWidth) >= 100) {
+        // 大于100就移除
         const radio = Math.abs(this.tempData.posWidth / this.tempData.posHeight);
         this.tempData.posWidth = this.tempData.posWidth > 0 ? this.tempData.posWidth + 200 : this.tempData.posWidth - 200;
         this.tempData.posHeight = this.tempData.posHeight > 0 ? Math.abs(this.tempData.posWidth * radio) : -Math.abs(this.tempData.posWidth * radio);
         this.tempData.opacity = 0;
+        this.tempData.swipe = true;
+        // 记录上次滑动的距离
+        this.tempData.lastPosWidth = this.tempData.posWidth;
+        this.tempData.lastPosHeight = this.tempData.posHeight;
+        // 当前页的顺序加一
+        this.firstCard.currentPage += 1;
+        this.$nextTick(() => {
+          this.tempData.posWidth = 0;
+          this.tempData.posHeight = 0;
+          this.tempData.opacity = 1;
+        })
       } else {
         this.tempData.posWidth = 0;
         this.tempData.posHeight = 0;
+        this.tempData.swipe = false;
       }
     },
-    onTransitionEnd() {
-      
+    onTransitionEnd(index) {
+      if(this.tempData.swipe && index === this.firstCard.currentPage - 1){
+        this.tempData.animation = true;
+        this.tempData.swipe = false;
+        this.tempData.lastPosWidth = 0;
+        this.tempData.lastPosHeight = 0;
+      }
     },
     transform(index) {
+      let style ={};
       if(index > this.firstCard.currentPage) {
-        let style = {};
         let visible = 3;
         let preIndex = index - this.firstCard.currentPage;
         // 可见数量内的卡片样式
@@ -128,6 +149,14 @@ export default {
           style['zIndex'] = '-1';
           style['transform'] = `translate3d(0,0,${-1 * visible * 60}px)`;
         }
+        return style;
+      } else if(index === this.firstCard.currentPage - 1) {
+        // 继续执行动画
+        style['transform'] = 'translate3D(' + this.tempData.lastPosWidth + 'px' + ',' + this.tempData.lastPosHeight + 'px' + ',0px)'
+        style['opacity'] = '0'
+        style['zIndex'] = '-1'
+        style['transitionTimingFunction'] = 'ease'
+        style['transitionDuration'] = 300 + 'ms'
         return style;
       }
     },
@@ -153,7 +182,7 @@ export default {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  height: 320px;
 
   perspective: 1000px;
   perspective-origin: 50% 150%;
